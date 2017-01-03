@@ -55,6 +55,7 @@ Example:
             .footer { align-items:center; color:gainsboro; padding:16px; display:flex; border-top: solid 1px gainsboro }
             .footer > iron-icon { margin-left: 16px; cursor:pointer }
             #heading { font-size:18pt; display:flex; align-items:center; height:64px; padding:0px 16px 0px 16px; }
+            #headingtext { @apply(--xenon-heading-theme); }
             #main ::content > main, #empty { padding:16px; }
             #multioverlay { z-index:100; color:white; position:absolute; right:0px; left:0px; background-color:var(--primary-color); display:flex; height:64px; align-items:center; padding:0px 16px 0px 16px;  }
             .actions ::content > * > * { padding: 0px 0px 0px 8px; cursor:pointer; }
@@ -68,7 +69,7 @@ Example:
                     <div class="actions" id="multiactions"><content select="multi"></content></div>
                 </div>
                 <div id="heading">
-                    <div>{{heading}}</div>
+                    <div id="headingtext">{{heading}}</div>
                     <div style="flex:1 1 auto;"></div>
                     <div class="actions" id="actions"><content select="actions"></content></div>
                 </div>
