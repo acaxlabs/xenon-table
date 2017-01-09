@@ -75,8 +75,8 @@ Example:
                 </div>
             </template>
             <div id="main"><content select="main"></content></div>
-            <div id="empty" hidden$="{{_hasCount(items)}}"><content select="empty"></content></div>
-            <div hidden$="{{!_hasCount(items)}}">
+            <div id="empty" hidden$="{{_hasItems}}"><content select="empty"></content></div>
+            <div hidden$="{{!_hasItems}}">
                 <div class="row colhead">
                     <div class="colcheck" hidden$="{{!multiSelection}}">
                         <paper-checkbox checked="{{allSelected}}" on-change="_selectAllClick" title="Select All"></paper-checkbox>
@@ -115,7 +115,7 @@ Example:
         is:"xenon-table",
         properties: {
             /* the array of objects to display in this table */
-            items: { type:Array, observer:"_makeColumns" },
+            items: { type:Array },
 
             /* the objects in this table which are selected */
             selectedItems: { type:Array, notify:true },
@@ -136,9 +136,13 @@ Example:
             pageInfo: { type:Object, notify:true, value:null, observer:"_setPageInfo" },
 
             /* internal column definitions */
-            _columnDefs: Array
+            _columnDefs: Array, 
+
+            /* internal check for items */
+            _hasItems: Boolean
         },
         observers: [
+            "_itemsChanged(items.*)",
             "_selectionChange(selectedItems.*)"
         ],
         _itemCountText: function(splices) {
@@ -159,10 +163,6 @@ Example:
                     this.$.list.deselectItem(this.items[i]);
             }
         },
-        _hasCount: function(items) {
-            if(items == undefined || items == null || items.length == 0) return false;
-            return true; 
-        },
         _setPageInfo: function(pageInfo) {
             if(pageInfo == undefined || pageInfo == null) return; 
             this.startItem = (pageInfo.page - 1) * pageInfo.pageSize + 1; 
@@ -180,7 +180,9 @@ Example:
         _sort: function(e) {
             this.sort = e.model.col.sort;
         },
-        _makeColumns: function(items) {
+        _itemsChanged: function() {
+            var items = this.items;
+            this._hasItems = !(items == undefined || items == null || items.length == 0);
             if(items == undefined || items.length == 0) return [];
             if(this._columnDefs != undefined) return this._columnDefs;
             var cols = [];
