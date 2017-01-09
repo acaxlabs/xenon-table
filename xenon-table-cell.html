@@ -26,6 +26,7 @@
                 this.templatize(template);
                 ele = this.stamp(item);
             }
+            Polymer.dom(this.$.wrapper).innerHTML = "";            
             Polymer.dom(this.$.wrapper).appendChild(ele.root);
         }
     });
