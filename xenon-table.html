@@ -162,12 +162,13 @@ Example:
         },
         _selectAllClick: function(e) {
             this.allSelected = e.target.checked;
-            for(var i = 0; i < this.items.length; i++) {
-                var index = this.selectedItems.indexOf(this.items[i]);
-                if(e.target.checked) 
+            if(this.allSelected) {
+                for(var i = 0; i < this.items.length; i++) {
+                    var index = this.selectedItems.indexOf(this.items[i]);
                     if(index == -1) this.push("selectedItems", this.items[i]);
-                else 
-                    if(index != -1) this.splice("selectedItems", this.items[i], 1);
+                }
+            } else {
+                this.set("selectedItems", []);
             }
         },
         _setPageInfo: function(pageInfo) {
