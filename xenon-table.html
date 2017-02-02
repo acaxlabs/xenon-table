@@ -1,7 +1,6 @@
 <link rel="import" href="../polymer/polymer.html"/>
 <link rel="import" href="xenon-table-cell.html"/>
 <link rel="import" href="xenon-table-column.html"/>
-<link rel="import" href="../iron-list/iron-list.html"/>
 <link rel="import" href="../iron-icons/iron-icons.html"/>
 <link rel="import" href="../iron-icon/iron-icon.html"/>
 <link rel="import" href="../paper-checkbox/paper-checkbox.html"/>
@@ -76,7 +75,7 @@ Example:
             </template>
             <div id="main"><content select="main"></content></div>
             <div id="empty" hidden$="{{_hasItems}}"><content select="empty"></content></div>
-            <div hidden$="{{!_hasItems}}">
+            <template is="dom-if" if="{{_hasItems}}">
                 <div class="row colhead">
                     <div class="colcheck" hidden$="{{!multiSelection}}">
                         <paper-checkbox checked="{{allSelected}}" on-change="_selectAllClick" title="Select All"></paper-checkbox>
@@ -85,19 +84,17 @@ Example:
                         <div style$="{{col.style}}" sort$="{{col.sort}}" on-click="_sort">{{col.heading}}</div>
                     </template>
                 </div>
-                <iron-list id="list" items="[[items]]" selected-items="{{selectedItems}}" multi-selection>
-                    <template>
-                        <div class="row cell">
-                            <div class="colcheck" hidden$="{{!multiSelection}}">
-                                <paper-checkbox checked="{{selected}}" on-change="_selectItem"></paper-checkbox>
-                            </div>
-                            <template is="dom-repeat" items="{{_columnDefs}}" as="col">
-                                <xenon-table-cell column="{{col}}" item="{{item}}" style="{{col.style}}"></xenon-table-cell>
-                            </template>
+                <template is="dom-repeat" items="[[items]]">
+                    <div class="row cell">
+                        <div class="colcheck" hidden$="{{!multiSelection}}">
+                            <paper-checkbox checked="{{_isSelected(item,selectedItems.*)}}" on-change="_selectItem"></paper-checkbox>
                         </div>
-                    </template>
-                </iron-list>
-            </div>
+                        <template is="dom-repeat" items="{{_columnDefs}}" as="col">
+                            <xenon-table-cell column="{{col}}" item="{{item}}" style="{{col.style}}"></xenon-table-cell>
+                        </template>
+                    </div>
+                </template>
+            </template>
             <template is="dom-if" if="{{pageInfo}}">
                 <div class="footer">
                     <div style="flex:1 1 auto"></div>
@@ -108,17 +105,16 @@ Example:
             </template>
             <div hidden id="columns"><content select="columns"></content></div>
         </paper-material>
-        
     </template>
     <script>
     Polymer({
         is:"xenon-table",
         properties: {
             /* the array of objects to display in this table */
-            items: { type:Array },
+            items: { type:Array, notify:true },
 
             /* the objects in this table which are selected */
-            selectedItems: { type:Array, notify:true },
+            selectedItems: { type:Array, notify:true, value:[] },
 
             /* set the text heading for this table */
             heading: String, 
@@ -145,22 +141,33 @@ Example:
             "_itemsChanged(items.*)",
             "_selectionChange(selectedItems.*)"
         ],
+        _isSelected: function(item, splices) {
+            return this.selectedItems.indexOf(item) != -1;
+        },
         _itemCountText: function(splices) {
             return this.allSelected ? "all selected" : splices.base.length + " selected";
         },
         _selectItem: function(e) {
-            if(!e.target.checked) this.allSelected = false;
-            this.$.list.toggleSelectionForItem(e.model.item);
+            var index = this.selectedItems.indexOf(e.model.item);
+            if(e.target.checked) {
+                if(index == -1) this.push("selectedItems", e.model.item);
+            } else {
+                this.allSelected = false;
+                if(index != -1) this.splice("selectedItems", index, 1);
+            }
+            console.log(this.selectedItems);
         },
         _selectionChange: function(value) {
             this._multiSelected = this.selectedItems.length > 0;
         },
         _selectAllClick: function(e) {
+            this.allSelected = e.target.checked;
             for(var i = 0; i < this.items.length; i++) {
-                if(e.target.checked)
-                    this.$.list.selectItem(this.items[i]);
-                else
-                    this.$.list.deselectItem(this.items[i]);
+                var index = this.selectedItems.indexOf(this.items[i]);
+                if(e.target.checked) 
+                    if(index == -1) this.push("selectedItems", this.items[i]);
+                else 
+                    if(index != -1) this.splice("selectedItems", this.items[i], 1);
             }
         },
         _setPageInfo: function(pageInfo) {
