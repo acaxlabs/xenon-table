@@ -59,6 +59,9 @@ Example:
             #multioverlay { z-index:100; color:white; position:absolute; right:0px; left:0px; background-color:var(--primary-color); display:flex; height:64px; align-items:center; padding:0px 16px 0px 16px;  }
             .actions ::content > * > * { padding: 0px 0px 0px 8px; cursor:pointer; }
             div[sort] { cursor:pointer }
+            @media (max-width: 600px) {
+                .xenonnomobile { display: none; }
+            }
         </style>
         <paper-material>
             <template is="dom-if" if="{{heading}}">
@@ -81,7 +84,7 @@ Example:
                         <paper-checkbox checked="{{allSelected}}" on-change="_selectAllClick" title="Select All"></paper-checkbox>
                     </div>
                     <template is="dom-repeat" items="{{_columnDefs}}" as="col">
-                        <div style$="{{col.style}}" sort$="{{col.sort}}" on-click="_sort">{{col.heading}}</div>
+                        <div style$="{{col.style}}" sort$="{{col.sort}}" class$="{{_colHeadClass(col.noMobile)}}" on-click="_sort">{{col.heading}}</div>
                     </template>
                 </div>
                 <template is="dom-repeat" items="[[items]]">
@@ -90,7 +93,7 @@ Example:
                             <paper-checkbox checked="{{_isSelected(item,selectedItems.*)}}" on-change="_selectItem"></paper-checkbox>
                         </div>
                         <template is="dom-repeat" items="{{_columnDefs}}" as="col">
-                            <xenon-table-cell column="{{col}}" item="{{item}}" style="{{col.style}}"></xenon-table-cell>
+                            <xenon-table-cell column="{{col}}" item="{{item}}" style="{{col.style}}" class$="{{_colHeadClass(col.noMobile)}}"></xenon-table-cell>
                         </template>
                     </div>
                 </template>
@@ -157,6 +160,10 @@ Example:
             }
             console.log(this.selectedItems);
         },
+        _colHeadClass: function(noMobile)
+        {
+            return noMobile ? "xenonnomobile" : "";
+        },
         _selectionChange: function(value) {
             this._multiSelected = this.selectedItems.length > 0;
         },
@@ -202,7 +209,8 @@ Example:
                         heading: tags[i].attributes.heading.value,
                         style: tags[i].attributes.style == undefined ? "" : tags[i].attributes.style.value,
                         templater: tags[i], 
-                        sort: tags[i].attributes.sort == undefined ? null : tags[i].attributes.sort.value
+                        sort: tags[i].attributes.sort == undefined ? null : tags[i].attributes.sort.value,
+                        noMobile: tags[i].attributes["no-mobile"] == undefined ? false : true
                     });
                 }
             } else {
