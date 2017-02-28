@@ -135,7 +135,7 @@ Example:
             sort: { type:String, notify:true }, 
 
             /* set this to enable paging functions */
-            pageInfo: { type:Object, notify:true, value:null, observer:"_setPageInfo" },
+            pageInfo: { type:Object, notify:true, observer:"_setPageInfo" },
 
             /* internal column definitions */
             _columnDefs: Array, 
@@ -192,10 +192,10 @@ Example:
             this.hasMore = pageInfo.page < (pageInfo.total / pageInfo.pageSize); 
         },
         _pagePrev: function() {
-            this.pageInfo.page--;
+            this.set("pageInfo.page", this.pageInfo.page - 1);
         },
         _pageNext: function() {
-            this.pageInfo.page++;
+            this.set("pageInfo.page", this.pageInfo.page + 1);
         },
         _sort: function(e) {
             this.sort = e.model.col.sort;
