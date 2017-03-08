@@ -103,10 +103,10 @@ Example:
             </template>
             <template is="dom-if" if="{{pageInfo}}">
                 <div class="footer">
-                    <div style="flex:1 1 auto"></div>
                     <div>{{startItem}}-{{endItem}} of {{pageInfo.total}}</div>
                     <iron-icon icon="chevron-left" on-click="_pagePrev" hidden$="{{!hasLess}}"></iron-icon>
                     <iron-icon icon="chevron-right" on-click="_pageNext" hidden$="{{!hasMore}}"></iron-icon>
+		    <div style="flex:1 1 auto"></div>
                 </div>
             </template>
             <div hidden id="columns"><content select="columns"></content></div>
