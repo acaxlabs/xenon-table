@@ -66,6 +66,7 @@ Example:
             }
         </style>
         <paper-material>
+            <div id="top"></div>
             <template is="dom-if" if="{{heading}}">
                 <div id="multioverlay" hidden$="{{!_multiSelected}}">
                     <div>{{_itemCountText(selectedItems.*)}}</div>
@@ -80,7 +81,14 @@ Example:
             </template>
             <div id="main"><content select="main"></content></div>
             <div id="empty" hidden><content select="empty"></content></div>
-            <div id="loading" hidden$="{{!_loadingItem}}"><paper-progress style="width:100%" indeterminate></paper-progress></div>
+            <div id="loading">
+                <template is="dom-if" if="{{emptyState}}">
+                    <div id="initial" hidden><content select="initial"></content></div>
+                </template>
+                <template is="dom-if" if="{{!emptyState}}">
+                    <paper-progress hidden="{{!loading}}" style="width:100%" indeterminate></paper-progress>
+                </template>
+            </div>
             <template is="dom-if" if="{{_hasItems}}">
                 <div class="row colhead">
                     <div class="colcheck" hidden$="{{!multiSelection}}">
@@ -102,11 +110,11 @@ Example:
                 </template>
             </template>
             <template is="dom-if" if="{{pageInfo}}">
-                <div class="footer">
+                <div class="footer" hidden$="[[emptyState]]">
                     <div>{{startItem}}-{{endItem}} of {{pageInfo.total}}</div>
                     <iron-icon icon="chevron-left" on-click="_pagePrev" hidden$="{{!hasLess}}"></iron-icon>
                     <iron-icon icon="chevron-right" on-click="_pageNext" hidden$="{{!hasMore}}"></iron-icon>
-		    <div style="flex:1 1 auto"></div>
+		            <div style="flex:1 1 auto"></div>
                 </div>
             </template>
             <div hidden id="columns"><content select="columns"></content></div>
@@ -138,12 +146,13 @@ Example:
             pageInfo: { type:Object, notify:true, observer:"_setPageInfo" },
 
             /* internal column definitions */
-            _columnDefs: Array, 
+            _columnDefs: Array,
 
             /* internal check for items */
             _hasItems: { type: Boolean, notify: true, value: false },
+
             /* internal check for items being loaded */
-            _loadingItems: { type: Boolean, notify: true, value: false }
+            emptyState: { type: Boolean, notify: true, value: true }
         },
         observers: [
             "_itemsChanged(items.*)",
@@ -193,29 +202,31 @@ Example:
         },
         _pagePrev: function() {
             this.set("pageInfo.page", this.pageInfo.page - 1);
+            this._scrollIntoView();
         },
         _pageNext: function() {
             this.set("pageInfo.page", this.pageInfo.page + 1);
+            this._scrollIntoView();
         },
         _sort: function(e) {
-            this.sort = e.model.col.sort;
+            this.set("sort", this.sort.includes("-") ? e.model.col.sort.concat("+") : e.model.col.sort.concat("-"));
         },
-        _itemsChanged: function() {
-            var items = this.items;
+        _itemsChanged: function(itemsRecord) {
+            var items = itemsRecord.base;
             if (items == undefined || items === null) {
-                //loading array
-                this.set("_loadingItem", true);
+                //loading array - empty state
+                this.set("emptyState", true);
                 return;
             }
             else if (items.length == 0) {
                 //got an empty array
                 this.$.empty.hidden = false;
-                this.set("_loadingItem", false);
+                this.set("emptyState", false);
             }
             else{
                 //show items in list
                 this.$.empty.hidden = true;
-                this.set("_loadingItem", false);
+                this.set("emptyState", false);
                 this.set("_hasItems", true);
             }
             if(this._columnDefs != undefined) return this._columnDefs;
@@ -244,6 +255,9 @@ Example:
             }
             this._columnDefs = cols;
             return cols; 
+        },
+        _scrollIntoView: function () {
+            this.$.top.scrollIntoView();
         }
     });
     </script>
