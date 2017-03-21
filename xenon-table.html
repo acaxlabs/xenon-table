@@ -83,7 +83,7 @@ Example:
             <div id="empty" hidden><content select="empty"></content></div>
             <div id="loading">
                 <template is="dom-if" if="{{emptyState}}">
-                    <div id="initial" hidden><content select="initial"></content></div>
+                    <div id="initial"><content select="initial"></content></div>
                 </template>
                 <template is="dom-if" if="{{!emptyState}}">
                     <paper-progress hidden="{{!loading}}" style="width:100%" indeterminate></paper-progress>
