@@ -13,8 +13,24 @@
     <body>
         <dom-module id="demo-element">
             <template>
+                <div style="padding:16px">This is a plain table with inital text set.</div>
+                
+                <xenon-table heading="Getting Stuff">
+                    <initial>Waiting for Contacts</initial>
+                    <empty>Should show up when empty</empty>
+                </xenon-table>
+
+                 <div style="padding:16px">This is a plain table with auto-generated columns loading.</div>
+                <xenon-table loading="true" items="{{items}}" heading="Contacts"></xenon-table>
+                <div style="padding:16px">This is a plain table with empty array.</div>
+                <xenon-table items="{{empty}}" heading="Contacts">
+                    <main>Tables can also have content sections. Here's an example. Use the main tag for content sections.</main>
+                    <empty>No Contacts Found</empty>
+                </xenon-table>
                 <div style="padding:16px">This is a plain table with auto-generated columns.</div>
-                <xenon-table items="{{items}}"></xenon-table>
+                <xenon-table items="{{items}}">
+                    <main>This table also has a content section, but no heading.</main>
+                </xenon-table>
                 <div style="padding:16px">This is a table with full options and custom columns.</div>
                 <xenon-table heading="Full Options" items="{{items}}" page-info="{{pageInfo}}" multi-selection>
                     <actions>
@@ -40,6 +56,7 @@
                             pageInfo: { type:Object }
                         }, 
                         ready: function() {
+                            this.empty = [];
                             this.items = [{"lastName":"Archer","firstName":"Don","food":"Pizza","age":"45"},{"lastName":"Archer","firstName":"Alicia","food":"Sushi","age":"33"},{"lastName":"Archer","firstName":"Jezzabelle","food":"What chu got?","age":"10"}];
                             this.pageInfo = { page:1, total:347, pageSize: 10 };
                         }
