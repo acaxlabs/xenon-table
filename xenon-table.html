@@ -43,20 +43,20 @@ Example:
 <dom-module id="xenon-table">
     <template>
         <!-- TODO: carrot on sorted -->
-        <!-- TODO: loading state -->
-        <!-- TODO: hide columns on mobile -->
         <style is="custom-style">
+            :host { display:block; margin:0px 4px 8px 4px; }
             .colcheck { max-width:30px }
             .row { padding:16px; display:flex; border-top:solid 1px gainsboro; }
             .cell:hover { background-color:whitesmoke }
             .row > * { flex:1 1 auto; width:1px; word-break:break-all; height:1.2em; overflow:hidden; }
             .colhead { color:darkgrey; border-top:none; }
             paper-material { background-color:white; }
-            .footer { align-items:center; color:gainsboro; padding:16px; display:flex; border-top: solid 1px gainsboro }
-            .footer > iron-icon { margin-left: 16px; cursor:pointer }
+            #empty, #initial { border-top: 1px solid gainsboro; padding:16px; }
+            #footer { align-items:center; color:gainsboro; padding:16px; display:flex; border-top: solid 1px gainsboro }
+            #footer > iron-icon { margin-left: 16px; cursor:pointer }
             #heading { display:flex; align-items:center; height:64px; padding:0px 16px 0px 16px; }
-            #headingtext { @apply(--paper-card-header-text); }
-            #main ::content > main, #empty { padding:16px; }
+            #headingtext { font-size:18pt; @apply(--paper-card-header-text); }
+            #main ::content > main { padding:16px; }
             #multioverlay { z-index:100; color:white; position:absolute; right:0px; left:0px; background-color:var(--primary-color); display:flex; height:64px; align-items:center; padding:0px 16px 0px 16px;  }
             .actions ::content > * > * { padding: 0px 0px 0px 8px; cursor:pointer; }
             paper-progress {--paper-progress-indeterminate-cycle-duration: 0.90s; --paper-progress-active-color: var(--primary-color);}
@@ -80,15 +80,9 @@ Example:
                 </div>
             </template>
             <div id="main"><content select="main"></content></div>
+            <div id="initial"><content select="initial"></content></div>
             <div id="empty" hidden><content select="empty"></content></div>
-            <div id="loading">
-                <template is="dom-if" if="{{emptyState}}">
-                    <div id="initial"><content select="initial"></content></div>
-                </template>
-                <template is="dom-if" if="{{!emptyState}}">
-                    <paper-progress hidden="{{!loading}}" style="width:100%" indeterminate></paper-progress>
-                </template>
-            </div>
+            <paper-progress hidden$="{{!loading}}" style="width:100%" indeterminate></paper-progress>
             <template is="dom-if" if="{{_hasItems}}">
                 <div class="row colhead">
                     <div class="colcheck" hidden$="{{!multiSelection}}">
@@ -110,7 +104,7 @@ Example:
                 </template>
             </template>
             <template is="dom-if" if="{{pageInfo}}">
-                <div class="footer" hidden$="[[emptyState]]">
+                <div id="footer" hidden$="[[emptyState]]">
                     <div>{{startItem}}-{{endItem}} of {{pageInfo.total}}</div>
                     <iron-icon icon="chevron-left" on-click="_pagePrev" hidden$="{{!hasLess}}"></iron-icon>
                     <iron-icon icon="chevron-right" on-click="_pageNext" hidden$="{{!hasMore}}"></iron-icon>
@@ -151,8 +145,8 @@ Example:
             /* internal check for items */
             _hasItems: { type: Boolean, notify: true, value: false },
 
-            /* internal check for items being loaded */
-            emptyState: { type: Boolean, notify: true, value: true }
+            /* loading flag shows indeterminate progress */
+            loading: { type:Boolean, value:false, observer:"_onLoading" }
         },
         observers: [
             "_itemsChanged(items.*)",
@@ -211,25 +205,25 @@ Example:
         _sort: function(e) {
             this.set("sort", this.sort.includes("-") ? e.model.col.sort.concat("+") : e.model.col.sort.concat("-"));
         },
+        _onLoading: function(newstate, oldstate) {
+            if(newstate == false && oldstate == true) {
+                this.$.initial.hidden = true;
+            }
+        },
         _itemsChanged: function(itemsRecord) {
             var items = itemsRecord.base;
-            if (items == undefined || items === null) {
-                //loading array - empty state
-                this.set("emptyState", true);
-                return;
-            }
-            else if (items.length == 0) {
+
+            if (items == undefined || items === null) return;
+            this.$.initial.hidden = true;
+            if (items.length == 0) {
                 //got an empty array
                 this.$.empty.hidden = false;
-                this.set("emptyState", false);
-            }
-            else{
+            } else {
                 //show items in list
                 this.$.empty.hidden = true;
-                this.set("emptyState", false);
                 this.set("_hasItems", true);
             }
-            if(this._columnDefs != undefined) return this._columnDefs;
+            if(this._columnDefs != undefined && this._columnDefs.length != 0) return this._columnDefs;
             var cols = [];
             var columns = Polymer.dom(this).querySelector("columns");
             if(columns) {
