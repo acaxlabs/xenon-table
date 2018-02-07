@@ -1,0 +1,86 @@
+﻿<link rel="import" href="../polymer/polymer.html" />
+<link rel="import" href="../paper-styles/color.html" />
+<link rel="import" href="../paper-icon-button/paper-icon-button.html" />
+<link rel="import" href="../paper-button/paper-button.html" />
+<link rel="import" href="../iron-icons/iron-icons.html" />
+<link rel="import" href="../iron-collapse/iron-collapse.html" />
+<link rel="import" href="../xenon-layout/xenon-header.html" />
+<dom-module id="xenon-table-filters">
+    <template>
+        <style include="app-theme">
+            #appliedFilters > applied-filters{display:flex; width:100%;}
+            .applied-filters { margin-bottom: 16px; flex: 1 1 auto; display: flex; align-items: center; justify-content: flex-start; color: var(--paper-grey-700); font-size: 12px; }
+                .applied-filters paper-icon-button { height: 32px; width: 32px; color: var(--paper-grey-700); }                
+        </style>
+
+        <div class="applied-filters" hidden$="[[!filtersSet]]">
+            <div style="margin-right:8px;">Filters:</div>
+            <content id="appliedFilters" select="applied-filters"></content>
+        </div>
+        <iron-collapse id="collapse" opened="{{filtersOpened}}" style="margin:0;">
+            <div>
+                <xenon-header heading="Filters">
+                    <actions>
+                        <paper-icon-button icon="arrow-drop-up" on-click="_closeFilters"></paper-icon-button>
+                    </actions>
+                </xenon-header>
+                <div style="padding:16px;">
+                    <div class="filter-choices">
+                        <content id="filterChoiceItems" select="filter-choices"></content>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:flex-end; padding:16px;">
+                    <paper-button on-click="_resetFilters">reset</paper-button>
+                    <paper-button raised class="primary" on-click="_applyFilters">Apply</paper-button>
+                </div>
+            </div>
+        </iron-collapse>
+    </template>
+    <script>
+		Polymer({
+            is: "xenon-table-filters",
+            properties: {
+                heading: { type: String, notify: true, value: "Filters" },
+                filters: { type: Object, notify: true, observers:"_onFiltersChanged" },
+                filtersSet: { type: Boolean, notify: true, value: false },
+                filtersOpened: { type: Boolean, notify: true, value: false },
+            },
+            listeners: {
+                "applied-filter-unset": "_unsetFilter"
+            },
+            _onFiltersChanged: function (filters) {
+                this._checkUnUsedFilters(filters);
+            },
+            _applyFilters: function (e) {
+                this.set("filtersSet", true);
+                this._closeFilters();
+                this.fire("xenon-table-filters-apply", this.filters);
+            },
+            _resetFilters: function (e) {
+                var filters = this.filters;
+                var props = Object.keys(filters);
+                props.forEach(p => filters[p] = "All");
+                this.set("filters", filters);
+                this.set("filtersSet", false);
+                this.fire("xenon-table-filters-reset", this.filters);
+            },
+            _unsetFilter: function (e) {
+                var filter = e.detail;
+                this.set("filters." + filter, "All");
+                this._checkUnUsedFilters(this.filters);
+                this.fire("xenon-table-filters-unset", filter);
+
+            },
+            _checkUnUsedFilters: function (filters) {
+                var props = Object.keys(filters);
+                var all = props.every(p => filters[p] == "All");
+                if (all)
+                    this.set("filtersSet", false);
+            },
+            _closeFilters: function (e) {
+                this.$.collapse.hide();
+            },
+
+		});
+    </script>
+</dom-module>

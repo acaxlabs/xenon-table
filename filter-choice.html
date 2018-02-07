@@ -1,0 +1,25 @@
+﻿<link rel="import" href="../polymer/polymer.html" />
+<link rel="import" href="../paper-styles/color.html" />
+<dom-module id="filter-choice">
+    <template>
+        <style>
+            :host{display:block;}
+            .input {flex:0 1 240px;}
+            .filter-choice-header { width: 200px; color: var(--paper-grey-500); font-size: 14px; }
+        </style>
+            <div style="display: flex; align-items: center; margin-right: 8px;">
+                <div class="filter-choice-header">[[heading]]</div>
+                <div class="input">
+                    <content></content>
+                </div>
+            </div>
+    </template>
+    <script>
+		Polymer({
+            is: "filter-choice",
+            properties: {
+                heading:String
+            }
+		});
+    </script>
+</dom-module>

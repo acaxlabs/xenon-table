@@ -1,0 +1,34 @@
+﻿<link rel="import" href="../polymer/polymer.html" />
+<link rel="import" href="../paper-icon-button/paper-icon-button.html" />
+<link rel="import" href="../iron-icons/iron-icons.html" />
+<dom-module id="applied-filter">
+    <template>
+        <style>
+            :host{display:block;}
+            .applied-filter-item { display: flex; align-items: center; width:100%; }
+        </style>
+        <div class="applied-filter-item" hidden$="[[_isAll(filterValue,filtersSet)]]">
+            <span>[[heading]]</span>
+            <paper-icon-button class="active-filter-btn" icon="clear" data-filter="[[filterName]]" on-click="_unsetFilter"></paper-icon-button>
+        </div>
+    </template>
+    <script>
+		Polymer({
+            is: "applied-filter",
+            properties: {
+                heading: String,
+                filterName: { type: String, notify: true },
+                filtersSet: { type: Boolean, notify: true },
+                filterValue: { type: Object, notify: true }
+            },
+            _isAll: function (filter, filtersSet) {
+                if (!filtersSet) return true;
+                return filter.toString() == "All";
+            },
+            _unsetFilter: function (e) {
+                var filter = e.currentTarget.dataFilter || e.target.dataHost.adatFilter;
+                this.fire("applied-filter-unset", filter);
+            }
+		});
+    </script>
+</dom-module>
