@@ -23,6 +23,7 @@
             },
             _isAll: function (filter, filtersSet) {
                 if (!filtersSet) return true;
+                console.log("_isAll: ", filter);
                 return filter.toString() == "All";
             },
             _unsetFilter: function (e) {

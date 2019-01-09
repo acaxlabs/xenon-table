@@ -156,7 +156,7 @@ Example:
             return this.selectedItems.indexOf(item) != -1;
         },
         _itemCountText: function(splices) {
-            return this.allSelected ? "all selected" : splices.base.length + " selected";
+            return /*this.allSelected ? "all selected" :*/ splices.base.length + " selected";
         },
         _selectItem: function(e) {
             var index = this.selectedItems.indexOf(e.model.item);
@@ -211,6 +211,12 @@ Example:
             }
         },
         _itemsChanged: function(itemsRecord) {
+
+            //First resest any selected items (only until impl)
+            this.set("selectedItems", []);
+            this.allSelected = false;
+
+
             var items = itemsRecord.base;
 
             if (items == undefined || items === null) return;
